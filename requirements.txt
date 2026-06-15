@@ -1,0 +1,6 @@
+python-telegram-bot[job-queue]>=22.0
+fal-client==0.4.0
+google-generativeai==0.8.3
+requests==2.32.3
+python-dotenv==1.0.1
+openai>=1.0.0
