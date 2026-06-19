@@ -58,6 +58,7 @@ config = load_config()
 TELEGRAM_BOT_TOKEN = config.get("telegram_bot_token") or os.getenv("TELEGRAM_BOT_TOKEN")
 FAL_KEY = config.get("fal_key") or os.getenv("FAL_KEY")
 GEMINI_API_KEY = config.get("gemini_api_key") or os.getenv("GEMINI_API_KEY")
+OPENAI_API_KEY = config.get("openai_api_key") or os.getenv("OPENAI_API_KEY")
 
 # Fallback defaults
 MALE_MODEL_URL = config.get("male_model_url") or os.getenv("MALE_MODEL_URL", "https://fal.media/files/monkey/-LyhwXTRuc1nMzz26wUgR.png")
@@ -70,8 +71,8 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 # Validate mandatory variables
-if not TELEGRAM_BOT_TOKEN or not FAL_KEY or not GEMINI_API_KEY:
-    logger.error("CRITICAL: Missing essential keys (TELEGRAM_BOT_TOKEN, FAL_KEY, or GEMINI_API_KEY) in .env file!")
+if not TELEGRAM_BOT_TOKEN or not FAL_KEY or not OPENAI_API_KEY:
+    logger.error("CRITICAL: Missing essential keys (TELEGRAM_BOT_TOKEN, FAL_KEY, or OPENAI_API_KEY) in .env file!")
 
 # load_config and save_config moved to top of file
 
@@ -2412,7 +2413,7 @@ def main():
             application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
             
             logger.info("Running Telegram polling (background thread)...")
-            application.run_polling(close_loop=False)
+            application.run_polling(close_loop=False, stop_signals=None)
         except Exception as e:
             logger.error(f"Telegram Bot failed to start (possibly blocked by ISP or timeout): {e}")
             logger.info("Telegram integration bypassed. Running Web VTON App only.")
