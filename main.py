@@ -780,12 +780,583 @@ ADMIN_HTML = """<!DOCTYPE html>
 </body>
 </html>"""
 
+APP_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="tab-title">AI Try-On Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --panel-bg: rgba(26, 27, 38, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --primary: #8a2be2;
+            --primary-hover: #a14bf6;
+            --accent: #00f0ff;
+            --text-color: #f0f0f5;
+            --text-muted: #8892b0;
+            --shadow-glow: 0 8px 32px 0 rgba(138, 43, 226, 0.2);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #07080c 0%, #120e24 100%);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        h1 { font-size: 2.2rem; font-weight: 800; background: linear-gradient(to right, #00f0ff, #8a2be2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--text-muted); font-size: 0.95rem; margin-top: 0.2rem; }
+        .admin-link {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1.2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .admin-link:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        @media(min-width: 992px) {
+            .main-container { grid-template-columns: 1fr 1fr; }
+        }
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-glow);
+        }
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 14px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.2);
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(0, 240, 255, 0.02);
+        }
+        .upload-icon { font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-muted); }
+        .upload-area input[type="file"] { display: none; }
+        .preview-img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 10px;
+            display: none;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        
+        /* Form styling */
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; color: #d1d1d6; }
+        select, textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-color);
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+        }
+        
+        /* Gender buttons */
+        .gender-selector { display: flex; gap: 1rem; margin-bottom: 1.2rem; }
+        .gender-btn {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.8rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .gender-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, #6f1ab6 100%);
+            border-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
+        
+        /* Buttons & Loaders */
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, #6f1ab6 100%);
+            color: white;
+            border: none;
+            padding: 0.9rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.5);
+            background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+        }
+        .btn:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border-left-color: var(--accent);
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Result Preview */
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 14px;
+            min-height: 400px;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+        .result-img, .result-video {
+            max-width: 100%;
+            max-height: 550px;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        }
+        .placeholder-text {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 2rem;
+        }
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+        
+        /* Status message overlay */
+        .status-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 12, 16, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            color: var(--text-color);
+            font-weight: 600;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1 id="header-title">AI Try-On Studio</h1>
+            <p class="subtitle" id="header-subtitle">VTON & Video Catalog Generator</p>
+        </div>
+        <div>
+            <a href="/admin" class="admin-link">⚙️ Control Panel</a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Left: Upload & Config -->
+        <div class="card">
+            <div class="card-title">👕 Upload Garment</div>
+            
+            <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                <div class="upload-icon">📤</div>
+                <p style="font-weight: 600;">Drag & drop garment photo or click to upload</p>
+                <p class="subtitle" style="font-size: 0.8rem;">PNG, JPG, JPEG (Hanger or Flat-lay)</p>
+                <input type="file" id="file-input" accept="image/*" onchange="handleFileUpload(event)">
+                <img id="garment-preview" class="preview-img" alt="Garment Preview">
+            </div>
+
+            <div id="settings-section" style="opacity: 0.5; pointer-events: none; transition: all 0.3s ease;">
+                <div class="card-title">⚙️ Generation Settings</div>
+                
+                <label>Target Model Gender</label>
+                <div class="gender-selector">
+                    <button class="gender-btn active" id="gender-male" onclick="setGender('male')">👨 Male Model</button>
+                    <button class="gender-btn" id="gender-female" onclick="setGender('female')">👩 Female Model</button>
+                </div>
+
+                <div class="grid-2" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Garment Category</label>
+                        <select id="sub_type">
+                            <option value="shirt">👕 Shirt</option>
+                            <option value="tshirt">👕 T-Shirt / Polo</option>
+                            <option value="jeans">👖 Jeans</option>
+                            <option value="cargo">👖 Cargo Pants</option>
+                            <option value="trouser">👖 Trouser</option>
+                            <option value="shorts">🩳 Shorts</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 0.5rem;">
+                    <label>Garment AI Description</label>
+                    <textarea id="garment_desc" style="height: 90px;" placeholder="AI description will load automatically..."></textarea>
+                </div>
+
+                <button class="btn" id="generate-tryon-btn" disabled onclick="generateTryon()">
+                    <div class="spinner" id="tryon-spinner"></div>
+                    <span id="tryon-btn-text">🎨 Generate Try-On Model</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Right: Results -->
+        <div class="card" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="card-title" style="width: 100%;">📸 Output Preview</div>
+            
+            <div class="result-container" id="result-box">
+                <div class="status-overlay" id="status-overlay">
+                    <div class="spinner" id="overlay-spinner" style="display: block; width: 40px; height: 40px;"></div>
+                    <p id="status-text">Processing VTON...</p>
+                </div>
+                
+                <div class="placeholder-text" id="placeholder-text">
+                    <p style="font-size: 4rem; margin-bottom: 1rem;">✨</p>
+                    <p style="font-weight: 600; font-size: 1.1rem;">Your AI Model Image will appear here</p>
+                    <p class="subtitle" style="font-size: 0.85rem;">Upload a garment and click Generate Try-On</p>
+                </div>
+                
+                <img id="result-image" class="result-img" alt="Generated VTON Model">
+                <video id="result-video" class="result-video" controls loop></video>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="action-row" id="tryon-actions" style="display: none;">
+                <button class="btn" onclick="downloadImage()">💾 Download Image</button>
+                <button class="btn" id="generate-video-btn" onclick="generateVideo()" style="background: linear-gradient(135deg, #00f0ff 0%, #00b8d4 100%); color: #0b0c10; box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25);">
+                    <div class="spinner" id="video-spinner" style="border-left-color: #0b0c10;"></div>
+                    <span id="video-btn-text">🎬 Generate Catwalk Video Reel</span>
+                </button>
+            </div>
+
+            <div class="action-row" id="video-actions" style="display: none;">
+                <button class="btn" onclick="downloadVideo()">💾 Download Catwalk Video</button>
+                <button class="btn" onclick="resetStudio()" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: var(--text-color); box-shadow: none;">🔄 Start Over</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedGarmentUrl = "";
+        let generatedModelUrl = "";
+        let generatedVideoUrl = "";
+        let selectedGender = "male";
+
+        async function fetchBranding() {
+            try {
+                const res = await fetch('/api/config');
+                const config = await res.json();
+                const titleText = config.admin_panel_title || "AI Try-On Studio";
+                document.getElementById('tab-title').innerText = titleText + " - VTON App";
+                document.getElementById('header-title').innerText = titleText + " Studio";
+            } catch(e) {}
+        }
+        fetchBranding();
+
+        function setGender(gender) {
+            selectedGender = gender;
+            document.querySelectorAll('.gender-btn').forEach(btn => btn.classList.remove('active'));
+            if (gender === 'male') {
+                document.getElementById('gender-male').classList.add('active');
+            } else {
+                document.getElementById('gender-female').classList.add('active');
+            }
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show local preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('garment-preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Set loading state for classification
+            document.getElementById('status-overlay').style.display = 'flex';
+            document.getElementById('status-text').innerText = "Uploading & Analyzing Garment...";
+            document.getElementById('placeholder-text').style.display = 'none';
+
+            try {
+                // 1. Read file as base64
+                const base64File = await toBase64(file);
+                
+                // 2. Upload to server
+                const uploadRes = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64File })
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadData.status !== 'success') throw new Error(uploadData.message);
+                uploadedGarmentUrl = uploadData.url;
+
+                // 3. Auto Classify
+                const classifyRes = await fetch('/api/classify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ garment_url: uploadedGarmentUrl })
+                });
+                const classifyData = await classifyRes.json();
+                if (classifyData.status !== 'success') throw new Error(classifyData.message);
+
+                // Auto-fill form settings
+                document.getElementById('garment_desc').value = classifyData.description || '';
+                
+                // Set category dropdown
+                const category = classifyData.category || 'upper';
+                if (category === 'lower') {
+                    document.getElementById('sub_type').value = 'jeans';
+                } else {
+                    document.getElementById('sub_type').value = 'tshirt';
+                }
+                
+                // Set gender
+                setGender(classifyData.gender || 'male');
+
+                // Enable config card
+                const settingsSection = document.getElementById('settings-section');
+                settingsSection.style.opacity = '1';
+                settingsSection.style.pointerEvents = 'all';
+                document.getElementById('generate-tryon-btn').disabled = false;
+
+                // Hide overlay
+                document.getElementById('status-overlay').style.display = 'none';
+            } catch(e) {
+                alert("Upload failed: " + e.message);
+                document.getElementById('status-overlay').style.display = 'none';
+                document.getElementById('placeholder-text').style.display = 'block';
+            }
+        }
+
+        async function generateTryon() {
+            // Disable buttons & show loading spinner
+            document.getElementById('generate-tryon-btn').disabled = true;
+            document.getElementById('tryon-spinner').style.display = 'block';
+            document.getElementById('tryon-btn-text').innerText = "Generating Model...";
+
+            document.getElementById('status-overlay').style.display = 'flex';
+            document.getElementById('status-text').innerText = "Creating Photorealistic Model Image (Takes ~10 seconds)...";
+            document.getElementById('result-image').style.display = 'none';
+            document.getElementById('placeholder-text').style.display = 'none';
+
+            const payload = {
+                garment_url: uploadedGarmentUrl,
+                gender: selectedGender,
+                sub_type: document.getElementById('sub_type').value,
+                description: document.getElementById('garment_desc').value
+            };
+
+            try {
+                const res = await fetch('/api/tryon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error(data.message);
+
+                generatedModelUrl = data.url;
+
+                // Display result image
+                const resImg = document.getElementById('result-image');
+                resImg.src = generatedModelUrl;
+                resImg.style.display = 'block';
+
+                document.getElementById('tryon-actions').style.display = 'flex';
+                document.getElementById('status-overlay').style.display = 'none';
+            } catch(e) {
+                alert("Generation failed: " + e.message);
+                document.getElementById('status-overlay').style.display = 'none';
+                document.getElementById('placeholder-text').style.display = 'block';
+            } finally {
+                document.getElementById('generate-tryon-btn').disabled = false;
+                document.getElementById('tryon-spinner').style.display = 'none';
+                document.getElementById('tryon-btn-text').innerText = "Generate Try-On Model";
+            }
+        }
+
+        async function generateVideo() {
+            document.getElementById('generate-video-btn').disabled = true;
+            document.getElementById('video-spinner').style.display = 'block';
+            document.getElementById('video-btn-text').innerText = "Creating Video...";
+
+            document.getElementById('status-overlay').style.display = 'flex';
+            document.getElementById('status-text').innerText = "Rendering Catwalk Video (This takes 45-60 seconds)...";
+
+            const payload = {
+                image_url: generatedModelUrl,
+                gender: selectedGender,
+                sub_type: document.getElementById('sub_type').value
+            };
+
+            try {
+                const res = await fetch('/api/video', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.status !== 'success') throw new Error(data.message);
+
+                generatedVideoUrl = data.url;
+
+                // Render video
+                const resVideo = document.getElementById('result-video');
+                resVideo.src = generatedVideoUrl;
+                resVideo.style.display = 'block';
+                document.getElementById('result-image').style.display = 'none'; // hide static
+
+                document.getElementById('tryon-actions').style.display = 'none';
+                document.getElementById('video-actions').style.display = 'flex';
+                document.getElementById('status-overlay').style.display = 'none';
+            } catch(e) {
+                alert("Video generation failed: " + e.message);
+                document.getElementById('status-overlay').style.display = 'none';
+            } finally {
+                document.getElementById('generate-video-btn').disabled = false;
+                document.getElementById('video-spinner').style.display = 'none';
+                document.getElementById('video-btn-text').innerText = "Generate Catwalk Video Reel";
+            }
+        }
+
+        function downloadImage() {
+            if (generatedModelUrl) window.open(generatedModelUrl, '_blank');
+        }
+
+        function downloadVideo() {
+            if (generatedVideoUrl) window.open(generatedVideoUrl, '_blank');
+        }
+
+        function resetStudio() {
+            uploadedGarmentUrl = "";
+            generatedModelUrl = "";
+            generatedVideoUrl = "";
+            
+            document.getElementById('garment-preview').style.display = 'none';
+            document.getElementById('result-image').style.display = 'none';
+            document.getElementById('result-video').style.display = 'none';
+            
+            document.getElementById('tryon-actions').style.display = 'none';
+            document.getElementById('video-actions').style.display = 'none';
+            document.getElementById('placeholder-text').style.display = 'block';
+            document.getElementById('garment_desc').value = '';
+
+            const settingsSection = document.getElementById('settings-section');
+            settingsSection.style.opacity = '0.5';
+            settingsSection.style.pointerEvents = 'none';
+            document.getElementById('generate-tryon-btn').disabled = true;
+        }
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    </script>
+</body>
+</html>"""
+
 class AdminPanelHandler(http.server.BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
     def do_GET(self):
-        if self.path == '/':
+        if self.path in ['/', '/app']:
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(APP_HTML.encode('utf-8'))
+        elif self.path == '/admin':
             self.send_response(200)
             self.send_header('Content-type', 'text/html; charset=utf-8')
             self.end_headers()
@@ -796,6 +1367,119 @@ class AdminPanelHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             config = load_config()
             self.wfile.write(json.dumps(config).encode('utf-8'))
+        elif self.path == '/api/upload':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                b64_str = req_data.get("image")
+                if "," in b64_str:
+                    b64_str = b64_str.split(",")[1]
+                image_bytes = base64.b64decode(b64_str)
+                
+                # Upload to Fal CDN
+                uploaded_url = fal_client.upload(image_bytes, "image/jpeg")
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "success", "url": uploaded_url}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
+        elif self.path == '/api/classify':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                garment_url = req_data.get("garment_url")
+                
+                # Download garment bytes
+                res = requests.get(garment_url)
+                image_bytes = res.content
+                
+                loop = asyncio.new_event_loop()
+                classification = loop.run_until_complete(classify_garment(image_bytes))
+                loop.close()
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "status": "success",
+                    "category": classification.get("category", "upper"),
+                    "gender": classification.get("gender", "male"),
+                    "description": classification.get("description", "")
+                }).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
+        elif self.path == '/api/tryon':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                garment_url = req_data.get("garment_url")
+                gender = req_data.get("gender", "male")
+                sub_type = req_data.get("sub_type", "shirt")
+                garment_desc = req_data.get("description")
+                
+                loop = asyncio.new_event_loop()
+                
+                if not garment_desc:
+                    # Download & classify
+                    res = requests.get(garment_url)
+                    image_bytes = res.content
+                    classification = loop.run_until_complete(classify_garment(image_bytes))
+                    garment_desc = classification.get("description", f"a premium fashion {sub_type}")
+                
+                # Tryon image generation
+                tryon_url = loop.run_until_complete(run_dalle_generation(gender, sub_type, garment_desc))
+                loop.close()
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "status": "success",
+                    "url": tryon_url,
+                    "description": garment_desc
+                }).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
+        elif self.path == '/api/video':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                image_url = req_data.get("image_url")
+                gender = req_data.get("gender", "male")
+                sub_type = req_data.get("sub_type", "shirt")
+                
+                loop = asyncio.new_event_loop()
+                video_url = loop.run_until_complete(run_image_to_video(image_url, gender, sub_type))
+                loop.close()
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "success", "url": video_url}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
         else:
             self.send_response(404)
             self.end_headers()
@@ -836,6 +1520,119 @@ class AdminPanelHandler(http.server.BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
                 self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+        elif self.path == '/api/upload':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                b64_str = req_data.get("image")
+                if "," in b64_str:
+                    b64_str = b64_str.split(",")[1]
+                image_bytes = base64.b64decode(b64_str)
+                
+                # Upload to Fal CDN
+                uploaded_url = fal_client.upload(image_bytes, "image/jpeg")
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "success", "url": uploaded_url}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
+        elif self.path == '/api/classify':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                garment_url = req_data.get("garment_url")
+                
+                # Download garment bytes
+                res = requests.get(garment_url)
+                image_bytes = res.content
+                
+                loop = asyncio.new_event_loop()
+                classification = loop.run_until_complete(classify_garment(image_bytes))
+                loop.close()
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "status": "success",
+                    "category": classification.get("category", "upper"),
+                    "gender": classification.get("gender", "male"),
+                    "description": classification.get("description", "")
+                }).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
+        elif self.path == '/api/tryon':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                garment_url = req_data.get("garment_url")
+                gender = req_data.get("gender", "male")
+                sub_type = req_data.get("sub_type", "shirt")
+                garment_desc = req_data.get("description")
+                
+                loop = asyncio.new_event_loop()
+                
+                if not garment_desc:
+                    # Download & classify
+                    res = requests.get(garment_url)
+                    image_bytes = res.content
+                    classification = loop.run_until_complete(classify_garment(image_bytes))
+                    garment_desc = classification.get("description", f"a premium fashion {sub_type}")
+                
+                # Tryon image generation
+                tryon_url = loop.run_until_complete(run_dalle_generation(gender, sub_type, garment_desc))
+                loop.close()
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "status": "success",
+                    "url": tryon_url,
+                    "description": garment_desc
+                }).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
+        elif self.path == '/api/video':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                req_data = json.loads(post_data.decode('utf-8'))
+                image_url = req_data.get("image_url")
+                gender = req_data.get("gender", "male")
+                sub_type = req_data.get("sub_type", "shirt")
+                
+                loop = asyncio.new_event_loop()
+                video_url = loop.run_until_complete(run_image_to_video(image_url, gender, sub_type))
+                loop.close()
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "success", "url": video_url}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode('utf-8'))
+                
         else:
             self.send_response(404)
             self.end_headers()
@@ -1594,48 +2391,48 @@ async def handle_text_message(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 # --- Main Webhook / Polling Orchestrator ---
 def main():
-    logger.info("Initializing Bot...")
+    logger.info("Initializing Bot Services...")
     
-    # Create Application
-    application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
-    
-    # Add Handlers
-    application.add_handler(CommandHandler("start", start_command))
-    application.add_handler(MessageHandler(filters.PHOTO, handle_incoming_photo))
-    application.add_handler(CallbackQueryHandler(handle_callback_queries))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
-    
-    # Start Web Admin Server Thread
-    def run_admin_server():
-        port_str = os.environ.get("PORT")
-        port = int(port_str) if port_str else 5000
-        server_address = ('', port)
+    # Start Telegram Bot in a background thread so it doesn't block the VTON Web App if Telegram is down
+    def run_telegram_bot():
+        if not TELEGRAM_BOT_TOKEN or TELEGRAM_BOT_TOKEN.strip() == "":
+            logger.warning("No Telegram Bot Token provided. Telegram integration is disabled.")
+            return
+            
         try:
-            httpd = http.server.HTTPServer(server_address, AdminPanelHandler)
-            logger.info(f"Admin Panel Server started at http://localhost:{port}")
-            httpd.serve_forever()
+            logger.info("Starting Telegram Bot thread...")
+            # Create a separate event loop for the background thread
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            application = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
+            application.add_handler(CommandHandler("start", start_command))
+            application.add_handler(MessageHandler(filters.PHOTO, handle_incoming_photo))
+            application.add_handler(CallbackQueryHandler(handle_callback_queries))
+            application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_message))
+            
+            logger.info("Running Telegram polling (background thread)...")
+            application.run_polling(close_loop=False)
         except Exception as e:
-            logger.error(f"Failed to start Admin Panel Server: {e}")
+            logger.error(f"Telegram Bot failed to start (possibly blocked by ISP or timeout): {e}")
+            logger.info("Telegram integration bypassed. Running Web VTON App only.")
 
-    threading.Thread(target=run_admin_server, daemon=True).start()
-    
-    # Render.com exposes a PORT environment variable for web servers
-    PORT = os.environ.get("PORT")
-    RENDER_EXTERNAL_URL = os.environ.get("RENDER_EXTERNAL_URL")
-    
-    if PORT and RENDER_EXTERNAL_URL:
-        # Run Webhook Mode (For Render.com free auto-wakeup)
-        logger.info(f"Starting in WEBHOOK Mode. Port: {PORT}, Public URL: {RENDER_EXTERNAL_URL}")
-        application.run_webhook(
-            listen="0.0.0.0",
-            port=int(PORT),
-            url_path=TELEGRAM_BOT_TOKEN,
-            webhook_url=f"{RENDER_EXTERNAL_URL}/{TELEGRAM_BOT_TOKEN}"
-        )
+    # Start bot thread if token is present
+    if TELEGRAM_BOT_TOKEN:
+        threading.Thread(target=run_telegram_bot, daemon=True).start()
     else:
-        # Run Polling Mode (For Local Testing)
-        logger.info("Starting in POLLING Mode...")
-        application.run_polling()
+        logger.info("Bypassing Telegram Bot. Only running Web App.")
+
+    # Start the Web App Server on the main thread
+    port_str = os.environ.get("PORT")
+    port = int(port_str) if port_str else 5000
+    server_address = ('', port)
+    try:
+        httpd = http.server.HTTPServer(server_address, AdminPanelHandler)
+        logger.info(f"VTON Studio Web Server started at http://localhost:{port}")
+        httpd.serve_forever()
+    except Exception as e:
+        logger.error(f"Failed to start VTON Web Server: {e}")
 
 
 if __name__ == "__main__":

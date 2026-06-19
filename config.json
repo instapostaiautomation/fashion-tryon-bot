@@ -7,7 +7,7 @@
   "meta_access_token": "",
   "male_prompts": {
     "shirt": {
-      "image_prompt": "Create a premium ecommerce fashion catalog image.\nA professional handsome Indian male fashion model is wearing the EXACT garment ([GARMENT_DESCRIPTION]) from the uploaded product image.\n\nIMPORTANT:\nThe uploaded garment image is the PRIMARY SOURCE OF TRUTH.\n\nDo NOT redesign, reinterpret, enhance, recolor, restyle, or modify the garment.\n\nPreserve EXACTLY:\n- Fabric texture\n- Fabric weave\n- Material appearance\n- Color tone\n- Stitching\n- Collar shape\n- Button placement\n- Sleeve shape\n- Fit and proportions\n\nThe shirt must be a 1:1 replica of the uploaded garment.\n\nOnly change:\n- Replace hanger with premium handsome Indian male model\n- Studio lighting\n- Background\n\nThe garment itself must remain 100% identical to the source image.",
+      "image_prompt": "Create a premium ecommerce fashion catalog image.\nA professional handsome Indian male fashion model is wearing the EXACT garment ([GARMENT_DESCRIPTION]) from the uploaded product image.\n\nIMPORTANT:\nThe uploaded garment image is the PRIMARY SOURCE OF TRUTH.\n\nDo NOT redesign, reinterpret, enhance, recolor, restyle, or modify the garment.\n\nPreserve EXACTLY:\n- Fabric texture\n- Fabric weave\n- Material appearance\n- Color tone\n- Stitching\n- Collar shape\n- Button placement\n- Sleeve shape\n- Fit and proportions\n\nThe shirt must be a 1:1 replica of the uploaded garment.\n\nOnly change:\n- Replace hanger with premium  male model very fair indian\n- Studio lighting\n- Background\n\nThe garment itself must remain 100% identical to the source image.",
       "prompt": "Professional ecommerce fashion model showcasing the garment.\n\nThe model stands confidently facing the camera.\n\nSlow natural pose transitions.\n\nFirst pose:\nfront view, standing straight, hands relaxed, clearly displaying the shirt.\n\nSecond pose:\n45-degree angle turn, showing side profile and garment fit.\nfull back view, slowly turning to clearly display the back design of the shirt.\n\nThird:\nreturns to front view and adjusts the cuff and collar naturally.\n\nThe garment remains the primary focus at all times.\nCamera remains stable and professional.\nLuxury ecommerce catalog style.\nStudio environment with clean background.\nNatural body movement only.\nNo walking away from camera.\nNo runway behavior.\nNo dramatic motion.\nNo dancing.\nNo exaggerated gestures.\nRealistic fabric movement.\nAccurate garment details.\nPremium menswear advertisement.\nPhotorealistic.\nProduct showcase video.\nSmooth camera motion.\nHigh-end fashion catalog presentation.\nDuration 8-10 seconds.",
       "negative_prompt": "runway walk,\nfashion show,\ncatwalk,\nfast movement,\ndancing,\njumping,\nspinning,\ncinematic action,\ndramatic motion,\ncamera shake,\ncropped garment,\nhidden clothing,\nblurred fabric,\nexaggerated poses,\nmodel leaving frame,\naggressive movement,\nlow quality,\ncartoon,\ncgi,\nunrealistic cloth physics"
     },
@@ -69,5 +69,16 @@
       "image_prompt": "Create a premium ecommerce fashion catalog image.\nA professional beautiful Indian female fashion model is wearing the EXACT garment ([GARMENT_DESCRIPTION]) from the uploaded product image.\n\nIMPORTANT:\nThe uploaded garment image is the PRIMARY SOURCE OF TRUTH.\n\nDo NOT redesign, reinterpret, enhance, recolor, restyle, or modify the garment.\n\nPreserve EXACTLY:\n- Fabric texture\n- Fabric weave\n- Material appearance\n- Color tone\n- Stitching\n- Collar shape / Neckline shape\n- Button placement\n- Sleeve shape\n- Fit and proportions\n- Exact logos, symbols, branding, print graphics, and labels (do not redesign, modify, change, or remove logos/symbols)\n\nThe shorts must be a 1:1 replica of the uploaded garment.\n\nOnly change:\n- Replace hanger/flat-lay background with a premium beautiful Indian female model\n- Studio lighting\n- Background\n\nThe garment itself must remain 100% identical to the source image."
     }
   },
-  "openai_api_key": "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"
+  "openai_api_key": "",
+  "admin_panel_title": "",
+  "admin_panel_subtitle": "",
+  "telegram_start_text": "",
+  "default_upper_category": "ask",
+  "default_lower_category": "ask",
+  "video_duration": 10,
+  "video_slow_motion": true,
+  "image_size": "1024x1536",
+  "telegram_bot_token": "",
+  "fal_key": "",
+  "gemini_api_key": ""
 }
